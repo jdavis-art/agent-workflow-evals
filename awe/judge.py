@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import re
 
-from .runners.claude import default_cli, run_command
+from .runners.claude import ISOLATION, default_cli, model_args, run_command
 from .suite import Suite, Case
 
 TEMPLATE = """JUDGE. You are grading an agent's output against a rubric. Answer with ONLY a JSON object of the form
@@ -47,7 +47,9 @@ def judge(suite: Suite, case: Case, output, cli: list[str] | None = None) -> dic
     rubric = (suite.path / suite.judge.get("rubric_file", "rubric.md")).read_text(encoding="utf-8")
     prompt = TEMPLATE.format(rubric=rubric, case_id=case.id, description=case.description,
                              output=output if isinstance(output, str) else json.dumps(output))
-    cmd = [*cli, "-p", prompt, "--output-format", "json", "--max-turns", "1", "--max-budget-usd", f"{suite.max_cost_usd:.2f}"]
+    # The judge answers from the prompt alone: no tools at all (--tools "").
+    cmd = [*cli, "-p", prompt, "--output-format", "json", *ISOLATION, "--tools", "", "--max-turns", "1",
+           "--max-budget-usd", f"{suite.max_cost_usd:.2f}", *model_args(suite)]
     res = run_command(cmd, cwd=None, timeout=suite.timeout_seconds)
     if res.error is not None:
         return {"pass": False, "reasons": ["non-JSON judge answer"], "cost_usd": res.cost_usd, "raw": res.error[-300:]}

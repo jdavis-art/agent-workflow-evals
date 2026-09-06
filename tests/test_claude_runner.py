@@ -24,8 +24,19 @@ def test_build_command_and_dry_run(tmp_path):
     assert cmd[:3] == ["claude", "-p", "Find drift in /sandbox"]
     assert "--output-format" in cmd and "json" in cmd and "--allowedTools" in cmd and "Read,Glob,Grep" in cmd
     assert cmd[cmd.index("--max-budget-usd") + 1] == "0.50"
+    assert cmd[cmd.index("--tools") + 1] == "Read,Glob,Grep"
+    for flag in ("--restricted", "--strict-mcp-config", "--disable-slash-commands", "--no-session-persistence"):
+        assert flag in cmd
+    assert "--bare" not in cmd  # --bare turns off OAuth and would need an API key
+    assert "--model" not in cmd
     out = run_claude(s, s.cases[0], dry_run=True, cli=["claude"])
     assert out.output.startswith("DRY RUN:") and out.cost_usd == 0
+
+
+def test_model_passthrough(tmp_path):
+    s = _suite(tmp_path, extra="model: sonnet\n")
+    cmd = build_command(s, "/sandbox", ["claude"])
+    assert cmd[cmd.index("--model") + 1] == "sonnet"
 
 
 def test_default_cli_resolves_or_overrides(monkeypatch):

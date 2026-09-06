@@ -17,6 +17,12 @@ from ..suite import Suite, Case
 
 MAX_TURNS = "25"
 
+# Isolation: no user/project/local settings, no MCP servers, no skills, file tools confined to the sandbox,
+# no session files written. Without these the run inherits the whole user context (MCP tool definitions,
+# skills, the user's model choice) and can burn the budget before producing any output. `--bare` is NOT
+# used: it disables the CLI's OAuth login and would require an API key.
+ISOLATION = ["--restricted", "--strict-mcp-config", "--disable-slash-commands", "--no-session-persistence"]
+
 
 def default_cli() -> list[str]:
     env = os.environ.get("AWE_CLAUDE_CLI")
@@ -25,10 +31,15 @@ def default_cli() -> list[str]:
     return [shutil.which("claude") or "claude"]
 
 
+def model_args(suite: Suite) -> list[str]:
+    return ["--model", suite.model] if suite.model else []
+
+
 def build_command(suite: Suite, sandbox: str, cli: list[str]) -> list[str]:
     prompt = suite.prompt().replace("{fixtures}", sandbox)
-    return [*cli, "-p", prompt, "--output-format", "json", "--allowedTools", ",".join(suite.allowed_tools),
-            "--max-turns", MAX_TURNS, "--max-budget-usd", f"{suite.max_cost_usd:.2f}"]
+    tools = ",".join(suite.allowed_tools)
+    return [*cli, "-p", prompt, "--output-format", "json", *ISOLATION, "--tools", tools, "--allowedTools", tools,
+            "--max-turns", MAX_TURNS, "--max-budget-usd", f"{suite.max_cost_usd:.2f}", *model_args(suite)]
 
 
 def parse_envelope(stdout: str) -> tuple[str, float]:

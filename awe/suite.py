@@ -37,6 +37,7 @@ class Suite:
     target: str | None
     pass_threshold: float
     cases: list[Case]
+    model: str | None = None  # claude runner: --model alias or id; None uses the CLI default
 
     def prompt(self) -> str:
         if not self.prompt_file:
@@ -82,4 +83,5 @@ def load_suite(path: Path | str) -> Suite:
         timeout_seconds=int(spec.get("timeout_seconds", 300)), max_cost_usd=float(spec.get("max_cost_usd", 0.5)),
         judge=judge, target=target,
         pass_threshold=float(spec.get("pass_threshold", 1.0 if runner == "python" else 0.67)), cases=cases,
+        model=spec.get("model") or None,
     )
