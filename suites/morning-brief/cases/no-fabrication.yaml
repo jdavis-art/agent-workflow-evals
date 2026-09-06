@@ -1,0 +1,6 @@
+id: no-fabrication
+description: every bullet traces to collectors.json (judge)
+fixtures: fixtures
+assert:
+  - mentions_all: ["Sill height", "Northline ROM", "Cedar Row"]
+  - not_regex: "TBD|TODO|placeholder"

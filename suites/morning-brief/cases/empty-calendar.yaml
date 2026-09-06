@@ -1,0 +1,6 @@
+id: empty-calendar
+description: with an empty calendar the brief says so instead of inventing a meeting
+fixtures: fixtures-empty
+assert:
+  - contains: "No meetings today."
+  - mentions_none: ["09:00", "13:00", "check-in"]

@@ -1,0 +1,18 @@
+{
+  "date": "2026-09-08",
+  "calendar": [
+    {"start": "09:00", "end": "09:30", "title": "Reviewer round 2 check-in", "with": ["Studio A"]},
+    {"start": "13:00", "end": "14:00", "title": "Riverbend site coordination", "with": ["GC"]}
+  ],
+  "inbox": [
+    {"from": "arch@example.com", "subject": "Sill height revision", "summary": "Revised A-201 attached; needs your ok before resubmittal.", "action_needed": true},
+    {"from": "vendor@example.com", "subject": "Window lead time", "summary": "Lead time moved to 6 weeks.", "action_needed": false}
+  ],
+  "tasks": [
+    {"title": "Send Northline ROM", "due": "2026-09-08", "priority": "high"},
+    {"title": "Approve payroll", "due": "2026-09-09", "priority": "high"}
+  ],
+  "meetings_yesterday": [
+    {"title": "Ops stand-up", "notes": "Cedar Row start slips one week to 2026-10-12."}
+  ]
+}

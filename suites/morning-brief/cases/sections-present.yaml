@@ -1,0 +1,5 @@
+id: sections-present
+description: the five section headers appear in order
+fixtures: fixtures
+assert:
+  - regex: "📅 CALENDAR[\\s\\S]*📬 INBOX[\\s\\S]*✅ TASKS[\\s\\S]*📝 YESTERDAY[\\s\\S]*🎯 FOCUS"

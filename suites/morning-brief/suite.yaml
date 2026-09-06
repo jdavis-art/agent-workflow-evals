@@ -1,0 +1,11 @@
+name: morning-brief
+runner: claude
+prompt_file: prompt.md
+allowed_tools: [Read]
+timeout_seconds: 240
+max_cost_usd: 0.60
+pass_threshold: 0.67
+judge:
+  enabled: true
+  rubric_file: rubric.md
+  context_files: [collectors.json]   # relative to the case's fixtures folder; pasted into the judge prompt

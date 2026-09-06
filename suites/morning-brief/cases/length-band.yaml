@@ -1,0 +1,5 @@
+id: length-band
+description: the brief sits in the length band
+fixtures: fixtures
+assert:
+  - length_between: [800, 8000]
