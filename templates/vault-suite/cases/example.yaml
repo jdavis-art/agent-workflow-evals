@@ -1,0 +1,20 @@
+# One case. Every assertion kind is shown once; delete the ones you do not need.
+id: example                      # unique within the suite; used in the scoreboard and --case
+description: what this case plants and what the workflow must say
+fixtures: fixtures               # claude runner: folder copied into a fresh sandbox for each attempt
+inputs: {}                       # python runner: keyword arguments for the callable
+
+# Text assertions run against the run's final text (claude) or the JSON dump of the return value (python).
+# Value assertions (equals, gte, lte, json_path) run against the return value itself.
+assert:
+  - contains: "seed-data.json"                 # exact substring, case-sensitive
+  - not_contains: "Seed matches vault"         # substring must be absent
+  - regex: 'seed-data\.json'                   # Python regex, DOTALL; single quotes avoid YAML escaping
+  - not_regex: "TBD|TODO|placeholder"          # regex must not match
+  - length_between: [300, 6000]                # character count of the text, inclusive
+  - mentions_all: ["Cedar Row", "Northline"]   # every item present, case-insensitive
+  - mentions_none: ["Riverbend"]               # no item present, case-insensitive
+  - equals: 32                                 # python runner: return value == 32
+  - gte: 0.9                                   # python runner: return value >= 0.9 (lte also exists)
+  - json_path: {path: "precision", gte: 0.60}  # python runner: field of a dict/list return value;
+                                               # path syntax a.b[0].c; equals / gte / lte

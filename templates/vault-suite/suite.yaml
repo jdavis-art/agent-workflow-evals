@@ -1,0 +1,30 @@
+# Template suite for a vault-side eval. Copy this folder to <root>/suites/<name>/ and edit.
+# Every field is shown; the values are the seed-drift suite's.
+
+name: seed-drift                 # suite name; results land in <root>/results/<name>/
+runner: claude                   # claude (headless Claude Code) | python (import a callable)
+
+# --- claude runner ---
+prompt_file: prompt.md           # the workflow prompt; {fixtures} is replaced with the sandbox path
+allowed_tools: [Read, Glob, Grep]  # pre-approved built-in tools; keep them read-only
+timeout_seconds: 300             # per attempt; a timeout fails the attempt with reason "timeout ..."
+max_cost_usd: 0.60               # per attempt, passed to the CLI as --max-budget-usd and checked again on the envelope
+# model: sonnet                  # optional --model alias or id; omitted = the CLI's default model
+pass_threshold: 0.67             # a case counts as passed when its pass rate over --repeat N attempts is >= this
+                                 # (default 0.67 for claude, 1.0 for python)
+
+# Isolation: the runner always passes --restricted --strict-mcp-config --disable-slash-commands
+# --no-session-persistence. The sandbox run therefore ignores user, project and local settings, loads no
+# MCP servers or skills, confines file tools to the sandbox, and writes no session files. Without this the
+# run inherits the whole user context (MCP tool definitions, skills, the user's model choice) and can burn
+# the budget before producing any output. Auth is the CLI's own login; no API key is read.
+
+# --- python runner (instead of the block above) ---
+# target: "score_golden:score_golden"   # module:callable; the suite folder is on sys.path for the import
+
+# --- optional LLM judge; runs only with `awe run --judge` and only after the assertions pass ---
+judge:
+  enabled: false
+  rubric_file: rubric.md         # the rubric text; the judge answers with {"pass": bool, "reasons": [..]}
+  context_files: []              # e.g. [collectors.json]: files (relative to the case's fixtures folder)
+                                 # pasted into the judge prompt as FIXTURE DATA, capped at 20,000 characters
