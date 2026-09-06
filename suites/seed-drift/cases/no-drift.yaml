@@ -1,0 +1,6 @@
+id: no-drift
+description: seed matches the table exactly
+fixtures: fixtures-nodrift
+assert:
+  - contains: "Seed matches vault"
+  - mentions_none: ["missing", "differs", "changed"]

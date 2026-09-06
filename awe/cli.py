@@ -88,6 +88,9 @@ def main(argv=None) -> int:
     suite = load_suite(root / "suites" / a.suite)
     record = run_suite(suite, a.case, a.repeat, a.judge, a.dry_run)
     if a.dry_run:
+        for c in record["cases"]:
+            for attempt in c["attempts"]:
+                print(f"[{c['case_id']}] {attempt['error'] or attempt['output_excerpt']}")
         print("dry run complete (no CLI calls)"); return 0
     save_run(root, suite.name, record)
     print(write_latest(root, suite.name).read_text(encoding="utf-8"))

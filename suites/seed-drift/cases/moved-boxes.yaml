@@ -1,0 +1,6 @@
+id: moved-boxes
+description: Northline boxes 20 in the table, 18 in the seed
+fixtures: fixtures
+assert:
+  - mentions_all: ["Northline", "18", "20"]
+  - not_contains: "Seed matches vault"

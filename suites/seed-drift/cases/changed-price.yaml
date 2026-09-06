@@ -1,0 +1,7 @@
+id: changed-price
+description: Pine Ridge $/box 74,000 in the table, 70,000 in the seed
+fixtures: fixtures
+assert:
+  - mentions_all: ["Pine Ridge"]
+  - regex: "74[,.]?000"
+  - regex: "70[,.]?000"

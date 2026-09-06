@@ -1,0 +1,7 @@
+id: missing-project
+description: Cedar Row is in the table but not in the seed
+fixtures: fixtures
+assert:
+  - mentions_all: ["Cedar Row"]
+  - not_contains: "Seed matches vault"
+  - regex: 'seed-data\.json'

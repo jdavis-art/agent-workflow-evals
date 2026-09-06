@@ -1,0 +1,7 @@
+name: seed-drift
+runner: claude
+prompt_file: prompt.md
+allowed_tools: [Read, Glob, Grep]
+timeout_seconds: 300
+max_cost_usd: 0.60
+pass_threshold: 0.67

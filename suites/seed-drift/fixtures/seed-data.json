@@ -1,0 +1,11 @@
+{
+  "_source": "fixture: generated from factory-operations.md Line Loading (fictional data)",
+  "defaults": {"paymentLagDays": 30, "boxesPerWeek": 4},
+  "projects": [
+    {"id": "northline", "name": "Northline", "boxes": 18, "earliestStart": "2026-11-02", "pricePerBox": 68500, "status": "contracted", "include": true, "notes": ""},
+    {"id": "pine-ridge", "name": "Pine Ridge", "boxes": 36, "earliestStart": "2027-01-11", "pricePerBox": 70000, "status": "prospect", "include": true, "notes": ""},
+    {"id": "wasatch-workforce", "name": "Wasatch Workforce", "boxes": 30, "earliestStart": "2026-12-07", "pricePerBox": 69900, "status": "active", "include": true, "notes": ""},
+    {"id": "riverbend", "name": "Riverbend", "boxes": 54, "earliestStart": "2026-08-10", "pricePerBox": 72250, "status": "active", "include": true, "notes": ""}
+  ],
+  "settings": {"weeksPerYear": 50}
+}

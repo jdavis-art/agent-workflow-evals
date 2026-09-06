@@ -1,0 +1,5 @@
+id: stale-status
+description: Wasatch Workforce is on hold in the table, active in the seed
+fixtures: fixtures
+assert:
+  - mentions_all: ["Wasatch Workforce", "on hold"]
