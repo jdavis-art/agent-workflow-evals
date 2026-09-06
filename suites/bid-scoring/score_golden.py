@@ -1,7 +1,7 @@
 """Scores golden.csv with the real bid-radar rules. Target for the python runner.
 
 Suite-level dependency: the sibling `bid-radar` package, installed editable into the venv
-(`pip install -e C:/Users/jdavi/Documents/Claude/Projects/bid-radar`). It is not a harness dependency."""
+(`pip install -e ../bid-radar` from this repo's folder). It is not a harness dependency."""
 import csv
 import pathlib
 

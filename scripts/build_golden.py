@@ -7,11 +7,16 @@ import json
 import pathlib
 import random
 
-FIX = pathlib.Path(r"C:\Users\jdavi\Documents\Claude\Projects\bid-radar\tests\fixtures\sweep-2026-09-04-scored.jsonl")
+ROOT = pathlib.Path(__file__).resolve().parents[2]  # the folder holding this repo and its sibling bid-radar
+DEFAULT_FIX = ROOT / "bid-radar" / "tests" / "fixtures" / "sweep-2026-09-04-scored.jsonl"
 OUT = pathlib.Path(__file__).resolve().parent.parent / "suites" / "bid-scoring" / "golden.csv"
 COLS = ["uid", "title", "agency", "location", "bid_type", "blurb", "legacy_score", "label", "note"]
 
-ap = argparse.ArgumentParser(); ap.add_argument("--keep-labels", action="store_true"); a = ap.parse_args()
+ap = argparse.ArgumentParser()
+ap.add_argument("--keep-labels", action="store_true")
+ap.add_argument("--fixture", type=pathlib.Path, default=DEFAULT_FIX, help="scored sweep JSONL (default: the sibling bid-radar fixture)")
+a = ap.parse_args()
+FIX = a.fixture
 rows = [json.loads(l) for l in FIX.read_text(encoding="utf-8").splitlines()]
 hi = [r for r in rows if r["legacy_score"] >= 3]
 lo = [r for r in rows if r["legacy_score"] < 3]
