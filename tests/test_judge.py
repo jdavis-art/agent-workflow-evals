@@ -1,17 +1,40 @@
 import sys
 import pathlib
 from awe.suite import load_suite
-from awe.judge import judge, parse_verdict
+from awe.judge import judge, parse_verdict, build_context, CONTEXT_CAP
 
 STUB = [sys.executable, str(pathlib.Path(__file__).resolve().parent.parent / "scripts" / "fake_claude.py")]
 
 
-def _suite(tmp_path):
+def _suite(tmp_path, judge_extra="", case_extra=""):
     d = tmp_path / "s"; (d / "cases").mkdir(parents=True)
-    (d / "suite.yaml").write_text("name: j\nrunner: claude\nprompt_file: p.md\njudge:\n  enabled: true\n  rubric_file: rubric.md\n", encoding="utf-8")
+    (d / "suite.yaml").write_text(f"name: j\nrunner: claude\nprompt_file: p.md\njudge:\n  enabled: true\n  rubric_file: rubric.md\n{judge_extra}", encoding="utf-8")
     (d / "p.md").write_text("x", encoding="utf-8"); (d / "rubric.md").write_text("Every action item must trace to the fixture.", encoding="utf-8")
-    (d / "cases" / "a.yaml").write_text("id: a\nassert: []\n", encoding="utf-8")
+    (d / "cases" / "a.yaml").write_text(f"id: a\nassert: []\n{case_extra}", encoding="utf-8")
     return load_suite(d)
+
+
+def test_judge_context_files_reach_the_prompt(tmp_path):
+    s = _suite(tmp_path, judge_extra="  context_files: [collectors.json]\n", case_extra="fixtures: fixtures\n")
+    (s.path / "fixtures").mkdir()
+    (s.path / "fixtures" / "collectors.json").write_text('{"note": "GOOD OUTPUT"}', encoding="utf-8")
+    r = judge(s, s.cases[0], "meh", cli=STUB)  # the stub passes only if the marker from the file is in the prompt
+    assert r["pass"] is True
+
+
+def test_judge_context_file_missing_fails(tmp_path):
+    s = _suite(tmp_path, judge_extra="  context_files: [collectors.json]\n", case_extra="fixtures: fixtures\n")
+    (s.path / "fixtures").mkdir()
+    r = judge(s, s.cases[0], "GOOD OUTPUT", cli=STUB)
+    assert r["pass"] is False and r["reasons"] == ["context file missing: collectors.json"] and r["cost_usd"] == 0
+
+
+def test_build_context_caps_total_size(tmp_path):
+    (tmp_path / "big.txt").write_text("x" * (CONTEXT_CAP + 500), encoding="utf-8")
+    (tmp_path / "small.txt").write_text("tail", encoding="utf-8")
+    text = build_context(tmp_path, ["big.txt", "small.txt"])
+    assert "FIXTURE DATA" in text and "big.txt" in text and "[truncated" in text
+    assert len(text) <= CONTEXT_CAP + 200  # cap plus headers and the marker
 
 
 def test_judge_pass_and_fail(tmp_path):
