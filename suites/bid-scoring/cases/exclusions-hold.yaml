@@ -1,0 +1,5 @@
+id: exclusions-hold
+description: every row excluded by an exclusion word still scores 0
+inputs: {golden_csv: golden.csv, threshold: 3}
+assert:
+  - json_path: {path: exclusion_violations, equals: []}

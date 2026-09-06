@@ -1,0 +1,6 @@
+# golden.csv labels are PROPOSALS derived from the legacy score; they are not trusted
+# until the owner corrects them by hand. Until then the floors below are provisional.
+# Suite-level dependency: the sibling bid-radar package, installed editable (see score_golden.py).
+name: bid-scoring
+runner: python
+target: "score_golden:score_golden"
