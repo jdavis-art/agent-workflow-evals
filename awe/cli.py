@@ -34,13 +34,27 @@ def _run_case_once(suite: Suite, case: Case, judge_on: bool, dry_run: bool) -> d
             "output_excerpt": (out.output if isinstance(out.output, str) else repr(out.output))[:2000]}
 
 
+def _failure_summary(attempt: dict) -> str | None:
+    """One line naming why a failed attempt failed: runner error, first failing assertion, or judge reason."""
+    if attempt["error"]:
+        return attempt["error"]
+    for r in attempt["assertions"]:
+        if not r["passed"]:
+            return r["detail"]
+    verdict = attempt.get("judge")
+    if verdict and not verdict.get("pass", False):
+        reasons = verdict.get("reasons") or []
+        return reasons[0] if reasons else "judge failed (no reasons)"
+    return None
+
+
 def run_suite(suite: Suite, case_ids: list[str] | None = None, repeat: int = 1, judge_on: bool = False, dry_run: bool = False) -> dict:
     cases = [c for c in suite.cases if not case_ids or c.id in case_ids]
     record = {"suite": suite.name, "timestamp": dt.datetime.now().strftime("%Y-%m-%dT%H-%M-%S"), "repeat": repeat, "cases": [], "totals": {}}
     for case in cases:
         attempts = [_run_case_once(suite, case, judge_on, dry_run) for _ in range(repeat)]
         rate = sum(1 for a in attempts if a["passed"]) / len(attempts)
-        first_fail = next((a["error"] or next((r["detail"] for r in a["assertions"] if not r["passed"]), (a["judge"] or {}).get("reasons", [""])[0] if a["judge"] else None) for a in attempts if not a["passed"]), None)
+        first_fail = next((_failure_summary(a) for a in attempts if not a["passed"]), None)
         record["cases"].append({"case_id": case.id, "pass_rate": rate, "cost_usd": sum(a["cost_usd"] for a in attempts), "first_failure": first_fail, "attempts": attempts})
     record["totals"] = {"cases": len(record["cases"]), "passed": sum(1 for c in record["cases"] if c["pass_rate"] >= suite.pass_threshold),
                         "cost_usd": sum(c["cost_usd"] for c in record["cases"]), "threshold": suite.pass_threshold}
