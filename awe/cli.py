@@ -11,6 +11,8 @@ from .results import save_run, write_latest, latest_two, render_latest_md
 from .runners.python import run_python
 from .suite import load_suite, Suite, Case
 
+EXCERPT_CHARS = 20_000  # a workflow answer ends with a paste-ready prompt; 2,000 cut it off on real fixtures
+
 
 def _run_case_once(suite: Suite, case: Case, judge_on: bool, dry_run: bool) -> dict:
     if suite.runner == "python":
@@ -31,7 +33,7 @@ def _run_case_once(suite: Suite, case: Case, judge_on: bool, dry_run: bool) -> d
         out.error = f"cost ${out.cost_usd:.3f} exceeded max ${suite.max_cost_usd:.2f}"
     return {"passed": passed, "error": out.error, "cost_usd": out.cost_usd, "seconds": round(out.seconds, 2),
             "assertions": [vars(r) for r in results], "judge": judge_res,
-            "output_excerpt": (out.output if isinstance(out.output, str) else repr(out.output))[:2000]}
+            "output_excerpt": (out.output if isinstance(out.output, str) else repr(out.output))[:EXCERPT_CHARS]}
 
 
 def _failure_summary(attempt: dict) -> str | None:
