@@ -7,4 +7,4 @@ description: >-
 inputs: {golden_csv: golden.csv, threshold: 3}
 assert:
   - json_path: {path: recall, gte: 0.90}
-  - json_path: {path: precision, gte: 0.20}
+  - json_path: {path: precision, gte: 0.60}
