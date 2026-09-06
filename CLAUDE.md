@@ -1,5 +1,7 @@
 # Claude Code Operating Context — Agent Workflow Evals (Build Session)
 
+Status: shipped 2026-09-06.
+
 You are the **build session** for `awe`, the agent workflow evals
 harness. A separate supervising session reviews your work gate by
 gate. Read, in order:
