@@ -12,6 +12,8 @@ if "JUDGE" in prompt:
     if "FENCED" in prompt:
         body = "```json\n" + body + "\n```"
     print(json.dumps({"result": body, "total_cost_usd": 0.001}))
+elif "BUDGET" in prompt:
+    print(json.dumps({"subtype": "error_max_budget_usd", "is_error": True, "result": "", "total_cost_usd": 0.59}))
 elif "EXPENSIVE" in prompt:
     print(json.dumps({"result": "ok", "total_cost_usd": 9.0}))
 else:

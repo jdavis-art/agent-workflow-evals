@@ -59,6 +59,16 @@ def test_cost_cap_is_reported(tmp_path):
     assert out.cost_usd == 9.0  # the CLI layer decides pass/fail against max_cost_usd
 
 
+def test_budget_stop_is_an_error_not_a_pass(tmp_path, monkeypatch):
+    from awe.cli import _run_case_once
+    s = _suite(tmp_path, prompt="BUDGET {fixtures}")
+    out = run_claude(s, s.cases[0], cli=STUB)
+    assert out.error == "cli error_max_budget_usd" and out.cost_usd == 0.59 and out.output is None
+    monkeypatch.setenv("AWE_CLAUDE_CLI", " ".join(f'"{c}"' for c in STUB))
+    attempt = _run_case_once(s, s.cases[0], judge_on=False, dry_run=False)
+    assert attempt["passed"] is False and attempt["error"] == "cli error_max_budget_usd" and attempt["assertions"] == []
+
+
 def test_timeout_fails_and_cleans_sandbox(tmp_path, monkeypatch):
     s = _suite(tmp_path, extra="timeout_seconds: 1\n")
     made = []

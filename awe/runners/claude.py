@@ -42,13 +42,17 @@ def build_command(suite: Suite, sandbox: str, cli: list[str]) -> list[str]:
             "--max-turns", MAX_TURNS, "--max-budget-usd", f"{suite.max_cost_usd:.2f}", *model_args(suite)]
 
 
-def parse_envelope(stdout: str) -> tuple[str, float]:
-    """The last non-empty stdout line is the JSON envelope; returns (result text, total cost in USD)."""
+def parse_envelope(stdout: str) -> tuple[str, float, str | None]:
+    """The last non-empty stdout line is the JSON envelope.
+    Returns (result text, total cost in USD, error). error is "cli <subtype>" when the CLI reports
+    is_error or a subtype other than "success" (budget stop, max turns, ...), else None."""
     lines = [ln for ln in stdout.strip().splitlines() if ln.strip()]
     data = json.loads(lines[-1])
     if not isinstance(data, dict):
         raise ValueError("envelope is not a JSON object")
-    return str(data.get("result", "")), float(data.get("total_cost_usd", 0.0))
+    subtype = str(data.get("subtype") or "success")
+    error = f"cli {subtype}" if data.get("is_error") or subtype != "success" else None
+    return str(data.get("result", "")), float(data.get("total_cost_usd", 0.0)), error
 
 
 def run_command(cmd: list[str], cwd: str | None, timeout: int) -> RunOutput:
@@ -64,9 +68,11 @@ def run_command(cmd: list[str], cwd: str | None, timeout: int) -> RunOutput:
     if proc.returncode != 0 and not proc.stdout.strip():
         return RunOutput(output=None, seconds=secs, error=f"cli exit {proc.returncode}: {proc.stderr[-500:]}")
     try:
-        text, cost = parse_envelope(proc.stdout)
+        text, cost, error = parse_envelope(proc.stdout)
     except (ValueError, IndexError, TypeError) as e:
         return RunOutput(output=None, seconds=secs, error=f"unparseable CLI output ({e}): {proc.stdout[-300:]}")
+    if error:
+        return RunOutput(output=None, cost_usd=cost, seconds=secs, error=error)
     return RunOutput(output=text, cost_usd=cost, seconds=secs)
 
 
